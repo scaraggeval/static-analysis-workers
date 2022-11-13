@@ -11,20 +11,32 @@ export default class ExecutorService {
     this.execute = promisify(exec);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  async executeCommand(path: string, command = '', commandArguments = ''): Promise<string> {
-    try {
-      const startTime = process.hrtime();
-      const result = await this.execute(`${path} ${command} ${commandArguments}`);
-      const elapsedSeconds = this.parseHrtimeToSeconds(process.hrtime(startTime));
+  async executeExecutable(path: string, executableCommand = '', executableArguments = '', allowFail = false): Promise<string> {
+    return this.timedExecute(`${path} ${executableCommand} ${executableArguments}`, allowFail);
+  }
 
-      this.logger.debug(`Execution time took ${elapsedSeconds} seconds`);
+  async executeCommand(command, executableCommandArguments = '', allowFail = false): Promise<string> {
+    return this.timedExecute(`${command} ${executableCommandArguments}`, allowFail);
+  }
+
+  private async timedExecute(command, allowFail = false): Promise<string> {
+    let successful = true;
+    const startTime = process.hrtime();
+
+    try {
+      const result = await this.execute(command);
 
       return result.stdout;
     } catch (e) {
-      this.logger.error(`Error occurred while executing command ${command} with arguments ${commandArguments} for path ${path}. Error is:\n${e}`);
-      return e;
+      if (!allowFail) {
+        successful = false;
+        throw e;
+      } else {
+        return e.stdout;
+      }
+    } finally {
+      const elapsedSeconds = this.parseHrtimeToSeconds(process.hrtime(startTime));
+      this.logger.debug(`Execution time took ${elapsedSeconds} seconds and was ${successful ? 'successful' : 'unsuccessful'}.`);
     }
   }
 

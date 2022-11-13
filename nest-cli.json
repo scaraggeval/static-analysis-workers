@@ -44,6 +44,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
+    },
+    "checkstyle": {
+      "type": "application",
+      "root": "apps/checkstyle",
+      "entryFile": "main",
+      "sourceRoot": "apps/checkstyle/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/checkstyle/tsconfig.app.json"
+      }
     }
   }
 }

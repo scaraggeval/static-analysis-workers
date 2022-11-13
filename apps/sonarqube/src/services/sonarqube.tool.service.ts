@@ -10,6 +10,7 @@ import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { AnalysisResult } from 'wrappers/common/constants/types';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
+import CodeUtil from 'wrappers/common/util/code.util';
 
 @Injectable()
 export default class SonarqubeToolService extends AbstractToolService implements OnModuleInit {
@@ -29,7 +30,7 @@ export default class SonarqubeToolService extends AbstractToolService implements
   async analyseCode(command: ToolCommand): Promise<AnalysisResult> {
     this.logger.log('Executing SonarQube scanner.');
 
-    const codeFilePath = await super.prepareCode(command.code, command.language, command.encoded, this.codePath);
+    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, this.codePath, command.encoded);
 
     const key = randomUUID();
     const workingDirectory = await this.prepareWorkingDir(key);
@@ -43,7 +44,7 @@ export default class SonarqubeToolService extends AbstractToolService implements
     -Dsonar.login=${this.configService.getOrThrow<string>('SONAR_USERNAME')} \
     -Dsonar.password=${this.configService.getOrThrow<string>('SONAR_PASSWORD')}`;
 
-      await this.executorService.executeCommand(`${this.toolExecutable}`, undefined, commandArguments);
+      await this.executorService.executeExecutable(`${this.toolExecutable}`, undefined, commandArguments);
 
       let activityResult = await this.sonarqubeService.getActivity(key);
       while (activityResult.pending != 0 || activityResult.inProgress != 0) {

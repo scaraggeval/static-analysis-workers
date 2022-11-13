@@ -1,11 +1,12 @@
 import { Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PathLike } from 'fs';
 
 export default class FilesystemUtil {
   private static readonly logger = new Logger(FilesystemUtil.name);
 
-  static async checkFileOrFolder(targetPath: string): Promise<boolean> {
+  static async checkFileOrFolder(targetPath: PathLike): Promise<boolean> {
     try {
       await fs.promises.access(targetPath, fs.constants.F_OK);
 
@@ -17,56 +18,57 @@ export default class FilesystemUtil {
     }
   }
 
-  static async isFile(targetPath: string) {
+  static async isFile(targetPath: PathLike) {
     const fileStatus = await fs.promises.lstat(targetPath);
 
     return fileStatus.isFile();
   }
 
-  static async createFile(filePath: string, content: string) {
-    const contentBuffer = Buffer.from(content, 'utf-8');
+  static async createFile(filePath: PathLike, content: string | Buffer) {
+    let contentBuffer = content;
+
+    if (typeof content === 'string') {
+      contentBuffer = Buffer.from(content, 'utf-8');
+    }
+
     await fs.promises.writeFile(filePath, contentBuffer);
 
     this.logger.debug(`Created file ${filePath}`);
   }
 
-  static async createFolder(folderPath: string): Promise<void> {
+  static async createFolder(folderPath: PathLike): Promise<void> {
     await fs.promises.mkdir(folderPath, { recursive: true });
 
     this.logger.debug(`Created folder ${folderPath}`);
   }
 
-  static async createFolderIfNotExists(folderPath: string): Promise<void> {
+  static async createFolderIfNotExists(folderPath: PathLike): Promise<void> {
     if (!(await this.checkFileOrFolder(folderPath))) {
       await this.createFolder(folderPath);
     }
   }
 
-  static async removeFile(filePath: string) {
+  static async removeFile(filePath: PathLike) {
     await fs.promises.unlink(filePath);
 
     this.logger.debug(`Removed file ${filePath}`);
   }
 
-  static async removeFolder(folderPath: string) {
+  static async removeFolder(folderPath: PathLike) {
     await fs.promises.rm(folderPath, { recursive: true, force: true });
 
     this.logger.debug(`Removed folder ${folderPath}`);
   }
 
-  static getDirectory(directory: string) {
-    return path.join(process.cwd(), directory);
-  }
-
-  static async makeExecutable(targetPath: string) {
+  static async makeExecutable(targetPath: PathLike) {
     try {
-      await this.chmodr(targetPath);
+      await this.chmodr(targetPath.toString());
     } catch (e) {
       this.logger.error(`Failed to change permission for: ${targetPath}. Exception: ${e}`);
     }
   }
 
-  private static async chmodr(currentPath: string) {
+  private static async chmodr(currentPath: PathLike) {
     if (await FilesystemUtil.isFile(currentPath)) {
       await fs.promises.chmod(currentPath, 0o777);
 
@@ -74,6 +76,6 @@ export default class FilesystemUtil {
     }
 
     const files = await fs.promises.readdir(currentPath);
-    files.forEach((value) => this.chmodr(path.join(currentPath, value)));
+    files.forEach((value) => this.chmodr(path.join(currentPath.toString(), value)));
   }
 }

@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as AdmZip from 'adm-zip';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -11,8 +10,8 @@ import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
 
 @Injectable()
-export class PmdToolService extends AbstractToolService implements OnModuleInit {
-  protected readonly logger = new Logger(PmdToolService.name);
+export class CheckstyleToolService extends AbstractToolService implements OnModuleInit {
+  protected readonly logger = new Logger(CheckstyleToolService.name);
 
   private readonly toolPath: string;
   private readonly toolExecutable: string;
@@ -26,12 +25,12 @@ export class PmdToolService extends AbstractToolService implements OnModuleInit 
   }
 
   async analyseCode(command: ToolCommand): Promise<AnalysisResult> {
-    this.logger.log('Executing PMD.');
+    this.logger.log('Executing Checkstyle.');
 
     const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, this.codePath, command.encoded);
 
-    const commandArguments = `-d ${this.codePath} -R rulesets/java/quickstart.xml -f ${command.format} --no-cache -failOnViolation false`;
-    const result = await this.executorService.executeExecutable(`${this.toolExecutable}`, `pmd`, commandArguments);
+    const commandArguments = `-jar ${this.toolExecutable} -c /sun_checks.xml -f sarif ${codeFilePath}`;
+    const result = await this.executorService.executeCommand(`java`, commandArguments, true);
 
     return { report: JSON.parse(result), dataToCleanup: { codeFilePath } };
   }
@@ -44,15 +43,14 @@ export class PmdToolService extends AbstractToolService implements OnModuleInit 
 
   async downloadTool() {
     this.logger.log('Downloading tool.');
-    const zipResponse = await axios({
+    const jarResponse = await axios({
       method: 'GET',
       url: this.configService.get<string>('TOOL_LINK'),
       responseType: 'arraybuffer',
     });
     this.logger.log('Tool downloaded.');
 
-    const zip = new AdmZip(zipResponse.data);
-    await zip.extractAllTo(this.toolPath);
+    await FilesystemUtil.createFile(this.toolExecutable, jarResponse.data);
   }
 
   async prepareTool() {
@@ -60,9 +58,5 @@ export class PmdToolService extends AbstractToolService implements OnModuleInit 
       await FilesystemUtil.createFolder(this.toolPath);
       await this.downloadTool();
     }
-
-    this.logger.log('Making tool executable...');
-    await FilesystemUtil.makeExecutable(this.toolPath);
-    this.logger.log('Tool is executable.');
   }
 }

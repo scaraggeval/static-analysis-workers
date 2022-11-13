@@ -3,6 +3,7 @@ import { ESLint } from 'eslint';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { AnalysisResult, FORMATS } from 'wrappers/common/constants/types';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
+import CodeUtil from 'wrappers/common/util/code.util';
 
 @Injectable()
 export class EslintToolService extends AbstractToolService {
@@ -18,9 +19,9 @@ export class EslintToolService extends AbstractToolService {
   }
 
   async analyseCode(command: ToolCommand): Promise<AnalysisResult> {
-    const preparedCode = await super.prepareCode(command.code, command.language, command.encoded);
+    const decodedCode = CodeUtil.optionalDecode(command.code, command.encoded);
 
-    const eslintResults = await this.eslint.lintText(preparedCode);
+    const eslintResults = await this.eslint.lintText(decodedCode);
 
     return { report: await this.formatResult(eslintResults, command.format) };
   }
