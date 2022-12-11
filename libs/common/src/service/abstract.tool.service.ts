@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { ToolCommand } from '../command/tool.command';
-import { AnalysisResult } from '../constants/types';
+import { AnalysisResult } from '../types/types';
 import { ToolDto } from 'wrappers/common/dto/tool.dto';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import { PathLike } from 'fs';

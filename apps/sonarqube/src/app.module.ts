@@ -5,10 +5,11 @@ import SonarqubeService from './services/sonarqube.service';
 import LoginHolder from './holder/login.holder';
 import { ConfigModule } from '@nestjs/config';
 import ExecutorService from 'wrappers/common/service/executor.service';
+import FormatService from './services/format.service';
 
 @Module({
   imports: [ConfigModule.forRoot({ envFilePath: './apps/sonarqube/.env' })],
   controllers: [ToolController],
-  providers: [SonarqubeToolService, SonarqubeService, ExecutorService, LoginHolder],
+  providers: [SonarqubeToolService, SonarqubeService, ExecutorService, FormatService, LoginHolder],
 })
 export class AppModule {}

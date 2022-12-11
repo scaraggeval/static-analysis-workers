@@ -5,9 +5,6 @@
 # tool output
 /tool
 
-# code output
-/code
-
 # Logs
 logs
 *.log

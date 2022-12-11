@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ESLint } from 'eslint';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
-import { AnalysisResult, FORMATS } from 'wrappers/common/constants/types';
+import { AnalysisResult } from 'wrappers/common/types/types';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
 import CodeUtil from 'wrappers/common/util/code.util';
+import { Log } from 'sarif';
 
 @Injectable()
 export class EslintToolService extends AbstractToolService {
@@ -23,20 +24,13 @@ export class EslintToolService extends AbstractToolService {
 
     const eslintResults = await this.eslint.lintText(decodedCode);
 
-    return { report: await this.formatResult(eslintResults, command.format) };
+    return { report: await this.formatResult(eslintResults), dataToCleanup: null };
   }
 
-  async formatResult(results: ESLint.LintResult[], format: FORMATS): Promise<string> {
-    let formatString = undefined;
-    switch (format) {
-      case 'sarif':
-        formatString = '@microsoft/sarif';
-        break;
-      default:
-        throw new Error();
-    }
+  async formatResult(results: ESLint.LintResult[]): Promise<Log> {
+    const formatString = '@microsoft/sarif';
     const formatter = await this.eslint.loadFormatter(formatString);
 
-    return formatter.format(results);
+    return formatter.format(results) as unknown as Log;
   }
 }

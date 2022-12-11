@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import LoginHolder from '../holder/login.holder';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { Issue } from '../types/types';
 
 @Injectable()
 export default class SonarqubeService {
@@ -53,7 +54,7 @@ export default class SonarqubeService {
     );
   }
 
-  async getIssues(projectKey?: string | string[]) {
+  async getIssues(projectKey?: string | string[]): Promise<Issue[]> {
     await this.login();
 
     const result = await axios.get<any>(SONAR_URLS.issues.search, {
@@ -67,7 +68,7 @@ export default class SonarqubeService {
       },
     });
 
-    return result.data;
+    return result.data['issues'];
   }
 
   async getActivity(projectKey?: string | string[]) {

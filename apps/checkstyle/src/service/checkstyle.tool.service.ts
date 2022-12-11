@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import { AnalysisResult } from 'wrappers/common/constants/types';
+import { AnalysisResult } from 'wrappers/common/types/types';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';

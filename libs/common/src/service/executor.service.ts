@@ -24,6 +24,7 @@ export default class ExecutorService {
     const startTime = process.hrtime();
 
     try {
+      this.logger.debug(`Executing: \n${command}`);
       const result = await this.execute(command);
 
       return result.stdout;

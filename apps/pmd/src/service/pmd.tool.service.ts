@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import { AnalysisResult } from 'wrappers/common/constants/types';
+import { AnalysisResult } from 'wrappers/common/types/types';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
@@ -30,7 +30,7 @@ export class PmdToolService extends AbstractToolService implements OnModuleInit 
 
     const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, this.codePath, command.encoded);
 
-    const commandArguments = `-d ${this.codePath} -R rulesets/java/quickstart.xml -f ${command.format} --no-cache -failOnViolation false`;
+    const commandArguments = `-d ${this.codePath} -R rulesets/java/quickstart.xml -f sarif --no-cache -failOnViolation false`;
     const result = await this.executorService.executeExecutable(`${this.toolExecutable}`, `pmd`, commandArguments);
 
     return { report: JSON.parse(result), dataToCleanup: { codeFilePath } };
