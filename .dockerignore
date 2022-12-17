@@ -1,0 +1,6 @@
+**/Dockerfile
+code
+.dockerignore
+node_modules
+npm-debug.log
+dist
