@@ -28,15 +28,16 @@ FROM node:16-alpine As production
 
 WORKDIR /usr/pmd
 
+RUN apk add --no-cache bash openjdk11
+
 COPY --chown=node:node package.json yarn.lock ./
-COPY --chown=node:node --from=build /usr/src/wrapper/node_modules ./node_modules
 
 ENV NODE_ENV production
 
 RUN yarn install
 
 # Copy the bundled code from the build stage to the production image
-COPY --chown=node:node --from=build /usr/src/wrapper/tool/pmd-bin-6.43.0 ./tool
+COPY --chown=node:node --from=build /usr/src/wrapper/tool/pmd-bin-6.43.0 ./tool/pmd-bin-6.43.0
 COPY --chown=node:node --from=build /usr/src/wrapper/dist ./dist
 COPY --chown=node:node --from=build /usr/src/wrapper/apps/pmd/.env ./
 
