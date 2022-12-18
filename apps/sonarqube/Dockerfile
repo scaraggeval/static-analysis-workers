@@ -17,10 +17,13 @@ RUN yarn install
 COPY --chown=node:node . .
 
 # Build module
-RUN yarn run build pmd
+RUN yarn run build sonarqube
+
+# donwload dependency
+RUN apk add --no-cache zip unzip
 
 # Download required tool
-RUN wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.43.0/pmd-bin-6.43.0.zip && unzip pmd-bin-6.43.0.zip -d ./tool && rm pmd-bin-6.43.0.zip
+RUN wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747.zip && unzip sonar-scanner-cli-4.7.0.2747 -d ./tool && rm sonar-scanner-cli-4.7.0.2747.zip
 
 # Switch to user node
 USER node
@@ -31,21 +34,21 @@ USER node
 
 FROM node:16-alpine As production
 
-WORKDIR /usr/pmd
+WORKDIR /usr/sonarqube
 
 # Install required packages
-RUN apk add --no-cache bash openjdk11-jre
+RUN apk add --no-cache openjdk8-jre
 
 COPY --chown=node:node package.json yarn.lock ./
 
-ENV NODE_ENV=production PORT=8090
+ENV NODE_ENV=production PORT=8093
 
 RUN yarn install --production
 
 # Copy the bundled code from the build stage to the production image
-COPY --chown=node:node --from=build /usr/src/wrapper/tool/pmd-bin-6.43.0 ./tool/pmd-bin-6.43.0
+COPY --chown=node:node --from=build /usr/src/wrapper/tool/sonar-scanner-4.7.0.2747 ./tool/sonar-scanner-4.7.0.2747
 COPY --chown=node:node --from=build /usr/src/wrapper/dist ./dist
-COPY --chown=node:node --from=build /usr/src/wrapper/apps/pmd/.env ./
+COPY --chown=node:node --from=build /usr/src/wrapper/apps/sonarqube/.env ./
 
 # Start the server using the production build
-CMD [ "node", "dist/apps/pmd/main.js" ]
+CMD [ "node", "dist/apps/sonarqube/main.js" ]

@@ -17,10 +17,7 @@ RUN yarn install
 COPY --chown=node:node . .
 
 # Build module
-RUN yarn run build pmd
-
-# Download required tool
-RUN wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.43.0/pmd-bin-6.43.0.zip && unzip pmd-bin-6.43.0.zip -d ./tool && rm pmd-bin-6.43.0.zip
+RUN yarn run build eslint
 
 # Switch to user node
 USER node
@@ -31,21 +28,16 @@ USER node
 
 FROM node:16-alpine As production
 
-WORKDIR /usr/pmd
-
-# Install required packages
-RUN apk add --no-cache bash openjdk11-jre
+WORKDIR /usr/eslint
 
 COPY --chown=node:node package.json yarn.lock ./
 
-ENV NODE_ENV=production PORT=8090
+ENV NODE_ENV=production PORT=8091
 
 RUN yarn install --production
 
 # Copy the bundled code from the build stage to the production image
-COPY --chown=node:node --from=build /usr/src/wrapper/tool/pmd-bin-6.43.0 ./tool/pmd-bin-6.43.0
 COPY --chown=node:node --from=build /usr/src/wrapper/dist ./dist
-COPY --chown=node:node --from=build /usr/src/wrapper/apps/pmd/.env ./
 
 # Start the server using the production build
-CMD [ "node", "dist/apps/pmd/main.js" ]
+CMD [ "node", "dist/apps/eslint/main.js" ]

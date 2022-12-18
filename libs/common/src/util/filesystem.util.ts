@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import * as fs from 'fs';
-import * as path from 'path';
 import { PathLike } from 'fs';
+import * as path from 'path';
 
 export default class FilesystemUtil {
   private static readonly logger = new Logger(FilesystemUtil.name);
@@ -22,6 +22,12 @@ export default class FilesystemUtil {
     const fileStatus = await fs.promises.lstat(targetPath);
 
     return fileStatus.isFile();
+  }
+
+  static async isSymbolicLink(targetPath: PathLike) {
+    const fileStatus = await fs.promises.lstat(targetPath);
+
+    return fileStatus.isSymbolicLink();
   }
 
   static async createFile(filePath: PathLike, content: string | Buffer) {
@@ -69,6 +75,10 @@ export default class FilesystemUtil {
   }
 
   private static async chmodr(currentPath: PathLike) {
+    if (await FilesystemUtil.isSymbolicLink(currentPath)) {
+      return;
+    }
+
     if (await FilesystemUtil.isFile(currentPath)) {
       await fs.promises.chmod(currentPath, 0o777);
 

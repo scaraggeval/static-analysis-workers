@@ -1,4 +1,5 @@
 **/Dockerfile
+tool
 code
 .dockerignore
 node_modules

@@ -16,6 +16,12 @@ export class EslintToolService extends AbstractToolService {
     super();
     this.eslint = new ESLint({
       useEslintrc: false,
+      baseConfig: {
+        extends: ['eslint:recommended'],
+        env: {
+          es6: true,
+        },
+      },
     });
   }
 
@@ -31,6 +37,6 @@ export class EslintToolService extends AbstractToolService {
     const formatString = '@microsoft/sarif';
     const formatter = await this.eslint.loadFormatter(formatString);
 
-    return formatter.format(results) as unknown as Log;
+    return JSON.parse(await formatter.format(results));
   }
 }
