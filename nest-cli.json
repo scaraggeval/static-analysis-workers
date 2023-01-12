@@ -53,6 +53,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/checkstyle/tsconfig.app.json"
       }
+    },
+    "infer": {
+      "type": "application",
+      "root": "apps/infer",
+      "entryFile": "main",
+      "sourceRoot": "apps/infer/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/infer/tsconfig.app.json"
+      }
     }
   }
 }
