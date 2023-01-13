@@ -74,6 +74,12 @@ export default class FilesystemUtil {
     }
   }
 
+  static async findFileWithExtensionInDirectory(targetDirectory: PathLike, extension: string): Promise<PathLike[]> {
+    const files = await fs.promises.readdir(targetDirectory);
+
+    return files.filter((value) => value.endsWith(extension));
+  }
+
   private static async chmodr(currentPath: PathLike) {
     if (await FilesystemUtil.isSymbolicLink(currentPath)) {
       return;

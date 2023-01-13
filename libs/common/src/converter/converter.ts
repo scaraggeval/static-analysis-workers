@@ -19,12 +19,12 @@ export default abstract class Converter<T> {
   }
 
   public async convert(): Promise<Sarif> {
-    const input = await this.loadReport(this.resultsFolder);
+    const input = await this.loadReport();
 
     return this.conversion(input);
   }
 
   protected abstract conversion(input: T);
 
-  protected abstract loadReport(outputFileName: string): Promise<T>;
+  protected abstract loadReport(): Promise<T>;
 }

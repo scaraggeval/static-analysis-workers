@@ -62,6 +62,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/infer/tsconfig.app.json"
       }
+    },
+    "cppcheck": {
+      "type": "application",
+      "root": "apps/cppcheck",
+      "entryFile": "main",
+      "sourceRoot": "apps/cppcheck/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cppcheck/tsconfig.app.json"
+      }
     }
   }
 }

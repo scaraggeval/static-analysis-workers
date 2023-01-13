@@ -37,3 +37,12 @@ services:
       PORT: 8093
     ports:
       - "8093:8093"
+  cppcheck:
+    image: wrapper/cppcheck
+    build:
+      context: ./..
+      dockerfile: ./apps/cppcheck/Dockerfile
+    environment:
+      PORT: 8094
+    ports:
+      - "8094:8094"
