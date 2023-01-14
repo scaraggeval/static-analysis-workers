@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ESLint } from 'eslint';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
-import { AnalysisResult } from 'wrappers/common/types/types';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
 import CodeUtil from 'wrappers/common/util/code.util';
 import { Log } from 'sarif';
@@ -25,12 +24,16 @@ export class EslintToolService extends AbstractToolService {
     });
   }
 
-  async analyseCode(command: ToolCommand): Promise<AnalysisResult> {
+  protected requiresAnalysisFolder(): boolean {
+    return false;
+  }
+
+  async analyseCode(command: ToolCommand): Promise<Log> {
     const decodedCode = CodeUtil.optionalDecode(command.code, command.encoded);
 
     const eslintResults = await this.eslint.lintText(decodedCode);
 
-    return { report: await this.formatResult(eslintResults), dataToCleanup: null };
+    return await this.formatResult(eslintResults);
   }
 
   async formatResult(results: ESLint.LintResult[]): Promise<Log> {
