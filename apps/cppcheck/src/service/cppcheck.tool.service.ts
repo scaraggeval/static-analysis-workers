@@ -20,7 +20,7 @@ export class CppcheckToolService extends AbstractToolService implements OnModule
   }
 
   async analyseCode(command, analysisFolder): Promise<Log> {
-    this.logger.log('Executing cppcheck.');
+    this.logger.verbose('Executing cppcheck.');
 
     const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
 

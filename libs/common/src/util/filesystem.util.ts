@@ -12,7 +12,7 @@ export default class FilesystemUtil {
 
       return true;
     } catch {
-      this.logger.debug(`Target path ${targetPath} doesn't exists.`);
+      this.logger.verbose(`Target path ${targetPath} doesn't exists.`);
 
       return false;
     }
@@ -39,13 +39,13 @@ export default class FilesystemUtil {
 
     await fs.promises.writeFile(filePath, contentBuffer);
 
-    this.logger.debug(`Created file ${filePath}`);
+    this.logger.verbose(`Created file ${filePath}`);
   }
 
   static async createFolder(folderPath: PathLike): Promise<void> {
     await fs.promises.mkdir(folderPath, { recursive: true });
 
-    this.logger.debug(`Created folder ${folderPath}`);
+    this.logger.verbose(`Created folder ${folderPath}`);
   }
 
   static async createFolderIfNotExists(folderPath: PathLike): Promise<void> {
@@ -57,13 +57,13 @@ export default class FilesystemUtil {
   static async removeFile(filePath: PathLike) {
     await fs.promises.unlink(filePath);
 
-    this.logger.debug(`Removed file ${filePath}`);
+    this.logger.verbose(`Removed file ${filePath}`);
   }
 
   static async removeFolder(folderPath: PathLike) {
     await fs.promises.rm(folderPath, { recursive: true, force: true });
 
-    this.logger.debug(`Removed folder ${folderPath}`);
+    this.logger.verbose(`Removed folder ${folderPath}`);
   }
 
   static async makeExecutable(targetPath: PathLike) {

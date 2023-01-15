@@ -41,7 +41,7 @@ export default abstract class AbstractToolService {
       if (this.requiresAnalysisFolder()) {
         await FilesystemUtil.removeFolder(analysisFolder);
 
-        this.logger.debug('Cleanup successful!');
+        this.logger.verbose('Cleanup successful!');
       }
     }
   }

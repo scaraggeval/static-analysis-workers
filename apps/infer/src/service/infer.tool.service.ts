@@ -29,7 +29,7 @@ export class InferToolService extends AbstractToolService implements OnModuleIni
   }
 
   async analyseCode(command: ToolCommand, analysisFolder): Promise<Log> {
-    this.logger.log('Executing Infer.');
+    this.logger.verbose('Executing Infer.');
 
     const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
     const resultFolderPath = path.join(analysisFolder, randomUUID());
