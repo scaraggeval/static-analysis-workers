@@ -28,7 +28,7 @@ export class PmdToolService extends AbstractToolService implements OnModuleInit 
   }
 
   async analyseCode(command: ToolCommand, analysisFolder): Promise<Log> {
-    this.logger.log('Executing PMD.');
+    this.logger.verbose('Executing PMD.');
 
     const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
 

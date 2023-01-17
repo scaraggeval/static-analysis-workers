@@ -15,7 +15,7 @@ export default class CppcheckConverter extends Converter<PlistReport> {
     const run: Run = {
       tool: {
         driver: {
-          name: input.clang_version,
+          name: 'Cppcheck',
           fullName: input.clang_version,
           rules: [],
         },

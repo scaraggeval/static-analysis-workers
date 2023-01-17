@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import { AnalysisResult } from 'wrappers/common/types/types';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
+import { Log } from 'sarif';
 
 @Injectable()
 export class CheckstyleToolService extends AbstractToolService implements OnModuleInit {
@@ -15,24 +15,26 @@ export class CheckstyleToolService extends AbstractToolService implements OnModu
 
   private readonly toolPath: string;
   private readonly toolExecutable: string;
-  private readonly codePath: string;
 
   constructor(private configService: ConfigService, private executorService: ExecutorService) {
-    super();
+    super(path.join(process.cwd(), configService.get<string>('CODE_LOCATION')));
     this.toolPath = path.join(process.cwd(), configService.get<string>('TOOL_LOCATION'));
     this.toolExecutable = path.join(process.cwd(), configService.getOrThrow<string>('TOOL_LOCATION'), configService.getOrThrow<string>('TOOL_EXECUTABLE'));
-    this.codePath = path.join(process.cwd(), configService.get<string>('CODE_LOCATION'));
   }
 
-  async analyseCode(command: ToolCommand): Promise<AnalysisResult> {
-    this.logger.log('Executing Checkstyle.');
+  protected requiresAnalysisFolder(): boolean {
+    return true;
+  }
 
-    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, this.codePath, command.encoded);
+  async analyseCode(command: ToolCommand, analysisFolder): Promise<Log> {
+    this.logger.verbose('Executing Checkstyle.');
+
+    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
 
     const commandArguments = `-jar ${this.toolExecutable} -c /sun_checks.xml -f sarif ${codeFilePath}`;
     const result = await this.executorService.executeCommand(`java`, commandArguments, true);
 
-    return { report: JSON.parse(result), dataToCleanup: { codeFilePath } };
+    return JSON.parse(result);
   }
 
   async onModuleInit(): Promise<any> {
