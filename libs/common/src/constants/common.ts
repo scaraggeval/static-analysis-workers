@@ -4,4 +4,5 @@ export const LANGUAGE_EXTENSION_MAP: Record<Language, string> = {
   java: 'java',
   javascript: 'js',
   c: 'c',
+  cpp: 'cpp',
 };
