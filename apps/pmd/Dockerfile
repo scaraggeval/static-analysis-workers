@@ -7,6 +7,9 @@ FROM node:16-alpine As build
 # Create app directory
 WORKDIR /usr/src/wrapper
 
+# Download required tool
+RUN wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.43.0/pmd-bin-6.43.0.zip && unzip pmd-bin-6.43.0.zip -d ./tool && rm pmd-bin-6.43.0.zip
+
 # Copy application dependency manifests to the container image. Copy lock as well to ensure cache usage
 COPY --chown=node:node package.json yarn.lock ./
 
@@ -18,9 +21,6 @@ COPY --chown=node:node . .
 
 # Build module
 RUN yarn run build pmd
-
-# Download required tool
-RUN wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.43.0/pmd-bin-6.43.0.zip && unzip pmd-bin-6.43.0.zip -d ./tool && rm pmd-bin-6.43.0.zip
 
 # Switch to user node
 USER node

@@ -7,6 +7,9 @@ FROM node:16-alpine As build
 # Create app directory
 WORKDIR /usr/src/wrapper
 
+# Download required tool
+RUN mkdir -p ./tool/infer && wget -O- "https://github.com/facebook/infer/releases/download/v1.1.0/infer-linux64-v1.1.0.tar.xz" | tar -C ./tool/infer -xJ
+
 # Copy application dependency manifests to the container image. Copy lock as well to ensure cache usage
 COPY --chown=node:node package.json yarn.lock ./
 
@@ -18,9 +21,6 @@ COPY --chown=node:node . .
 
 # Build module
 RUN yarn run build infer
-
-# Download required tool
-RUN mkdir -p ./tool/infer && wget -O- "https://github.com/facebook/infer/releases/download/v1.1.0/infer-linux64-v1.1.0.tar.xz" | tar -C ./tool/infer -xJ
 
 # Switch to user node
 USER node
