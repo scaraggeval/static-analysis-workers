@@ -11,7 +11,7 @@ import { Log } from 'sarif';
 export class CppcheckToolService extends AbstractToolService implements OnModuleInit {
   protected readonly logger = new Logger(CppcheckToolService.name);
 
-  constructor(private configService: ConfigService, private executorService: ExecutorService) {
+  constructor(private executorService: ExecutorService, configService: ConfigService) {
     super(path.join(process.cwd(), configService.get<string>('CODE_LOCATION')));
   }
 

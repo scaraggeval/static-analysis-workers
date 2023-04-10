@@ -1,14 +1,14 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { CppcheckToolService } from '../service/cppcheck.tool.service';
+import { Log } from 'sarif';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import { ToolResponse } from 'wrappers/common/response/tool.response';
+import { CppcheckToolService } from '../service/cppcheck.tool.service';
 
 @Controller()
 export class ToolController {
   constructor(private readonly cppcheckService: CppcheckToolService) {}
 
   @Post()
-  async analyze(@Body() command: ToolCommand): Promise<ToolResponse> {
+  async analyze(@Body() command: ToolCommand): Promise<Log> {
     return this.cppcheckService.analyze(command);
   }
 }

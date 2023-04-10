@@ -1,11 +1,11 @@
-import { Log as Sarif } from 'sarif';
+import { Log } from 'sarif';
 
 export default abstract class Converter<T> {
   protected analysisFile: string;
 
   protected resultsFolder: string;
 
-  protected output: Sarif;
+  protected output: Log;
 
   protected constructor(analysisFile: string, resultsFolder: string) {
     this.analysisFile = analysisFile;
@@ -18,13 +18,13 @@ export default abstract class Converter<T> {
     };
   }
 
-  public async convert(): Promise<Sarif> {
+  public async convert(): Promise<Log> {
     const input = await this.loadReport();
 
     return this.conversion(input);
   }
 
-  protected abstract conversion(input: T);
+  protected abstract conversion(input: T): Promise<Log>;
 
   protected abstract loadReport(): Promise<T>;
 }

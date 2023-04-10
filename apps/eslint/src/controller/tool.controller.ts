@@ -1,14 +1,14 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { EslintToolService } from '../service/eslint.tool.service';
+import { Log } from 'sarif';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import { ToolResponse } from 'wrappers/common/response/tool.response';
+import { EslintToolService } from '../service/eslint.tool.service';
 
 @Controller()
 export class ToolController {
   constructor(private readonly eslintService: EslintToolService) {}
 
   @Post()
-  async analyze(@Body() command: ToolCommand): Promise<ToolResponse> {
+  async analyze(@Body() command: ToolCommand): Promise<Log> {
     return this.eslintService.analyze(command);
   }
 }

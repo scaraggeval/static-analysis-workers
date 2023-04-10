@@ -1,17 +1,17 @@
-import { Log as Sarif, ReportingDescriptor, Result, Run } from 'sarif';
-import { Location, PlistReport } from '../types/types';
-import Converter from 'wrappers/common/converter/converter';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as plist from 'plist';
+import { Log, ReportingDescriptor, Result, Run } from 'sarif';
+import Converter from 'wrappers/common/converter/converter';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
+import { Location, PlistReport } from '../types/types';
 
 export default class CppcheckConverter extends Converter<PlistReport> {
   constructor(analysisFile: string, resultFolder: string) {
     super(analysisFile, resultFolder);
   }
 
-  public async conversion(input: PlistReport): Promise<Sarif> {
+  public async conversion(input: PlistReport): Promise<Log> {
     const run: Run = {
       tool: {
         driver: {
@@ -22,6 +22,7 @@ export default class CppcheckConverter extends Converter<PlistReport> {
       },
       results: [],
     };
+
     input.diagnostics.forEach((diagnostic) => {
       // create the Rule object if it doesn't already exist
       if (!run.tool.driver.rules.map((value) => value.name).includes(diagnostic.check_name)) {

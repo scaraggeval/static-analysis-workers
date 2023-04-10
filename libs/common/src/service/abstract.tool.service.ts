@@ -1,18 +1,17 @@
 import { HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { ToolCommand } from '../command/tool.command';
-import { ToolDto } from 'wrappers/common/dto/tool.dto';
-import FilesystemUtil from 'wrappers/common/util/filesystem.util';
+import { randomUUID } from 'crypto';
 import { PathLike } from 'fs';
 import * as path from 'path';
-import { randomUUID } from 'crypto';
-import { Log as Sarif } from 'sarif';
+import { Log } from 'sarif';
+import FilesystemUtil from 'wrappers/common/util/filesystem.util';
+import { ToolCommand } from '../command/tool.command';
 
 export default abstract class AbstractToolService {
   protected abstract readonly logger: Logger;
 
   protected constructor(private readonly codePath?: string) {}
 
-  protected abstract analyseCode(command: ToolCommand, analysisFolder?: PathLike): Promise<Sarif>;
+  protected abstract analyseCode(command: ToolCommand, analysisFolder?: PathLike): Promise<Log>;
 
   protected abstract requiresAnalysisFolder(): boolean;
 
@@ -27,12 +26,11 @@ export default abstract class AbstractToolService {
     return analysisFolderPath;
   }
 
-  async analyze(command: ToolCommand): Promise<ToolDto> {
+  async analyze(command: ToolCommand): Promise<Log> {
     const analysisFolder = await this.retrieveAnalysisFolder();
-    try {
-      const report = await this.analyseCode(command, analysisFolder);
 
-      return { executionTime: new Date(), result: report };
+    try {
+      return await this.analyseCode(command, analysisFolder);
     } catch (e) {
       this.logger.error(`Analysis unsuccessful:\n ${e}`);
 
