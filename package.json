@@ -1,6 +1,6 @@
 {
   "name": "wrappers",
-  "version": "0.0.1",
+  "version": "1",
   "description": "This project consists of nestjs REST wrappers to interact with known SA tools for different languages.",
   "author": "Nikola Kescec",
   "private": true,

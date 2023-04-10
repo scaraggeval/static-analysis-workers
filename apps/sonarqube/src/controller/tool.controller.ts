@@ -1,14 +1,14 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import SonarqubeToolService from '../services/sonarqube.tool.service';
+import { Log } from 'sarif';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import { ToolResponse } from 'wrappers/common/response/tool.response';
+import SonarqubeToolService from '../services/sonarqube.tool.service';
 
 @Controller()
 export class ToolController {
   constructor(private readonly sonarqubeToolService: SonarqubeToolService) {}
 
   @Post()
-  async analyze(@Body() command: ToolCommand): Promise<ToolResponse> {
+  async analyze(@Body() command: ToolCommand): Promise<Log> {
     return this.sonarqubeToolService.analyze(command);
   }
 }

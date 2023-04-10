@@ -1,15 +1,15 @@
-import * as path from 'path';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
+import { randomUUID } from 'crypto';
+import * as path from 'path';
+import { Log } from 'sarif';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import FilesystemUtil from 'wrappers/common/util/filesystem.util';
+import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
-import { retrieveCompilerCommandData } from '../util/infer.util';
+import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import InferConverter from '../converter/infer.converter';
-import { Log } from 'sarif';
-import { randomUUID } from 'crypto';
+import { retrieveCompilerCommandData } from '../util/infer.util';
 
 @Injectable()
 export class InferToolService extends AbstractToolService implements OnModuleInit {
