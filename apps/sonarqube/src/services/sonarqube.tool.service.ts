@@ -1,17 +1,17 @@
-import * as path from 'path';
-import * as AdmZip from 'adm-zip';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as AdmZip from 'adm-zip';
 import axios from 'axios';
 import { randomUUID } from 'crypto';
-import SonarqubeService from './sonarqube.service';
-import ExecutorService from 'wrappers/common/service/executor.service';
-import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
-import FilesystemUtil from 'wrappers/common/util/filesystem.util';
-import { ToolCommand } from 'wrappers/common/command/tool.command';
-import CodeUtil from 'wrappers/common/util/code.util';
-import FormatService from './format.service';
+import * as path from 'path';
 import { Log } from 'sarif';
+import { ToolCommand } from 'wrappers/common/command/tool.command';
+import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
+import ExecutorService from 'wrappers/common/service/executor.service';
+import CodeUtil from 'wrappers/common/util/code.util';
+import FilesystemUtil from 'wrappers/common/util/filesystem.util';
+import SonarqubeConverter from '../converter/sonarqube.converter';
+import SonarqubeService from './sonarqube.service';
 
 @Injectable()
 export default class SonarqubeToolService extends AbstractToolService implements OnModuleInit {
@@ -20,7 +20,7 @@ export default class SonarqubeToolService extends AbstractToolService implements
   private readonly toolPath: string;
   private readonly toolExecutable: string;
 
-  constructor(private configService: ConfigService, private executorService: ExecutorService, private sonarqubeService: SonarqubeService, private formatService: FormatService) {
+  constructor(private configService: ConfigService, private executorService: ExecutorService, private sonarqubeService: SonarqubeService, private formatService: SonarqubeConverter) {
     super(path.join(process.cwd(), configService.getOrThrow<string>('CODE_LOCATION')));
     this.toolPath = path.join(process.cwd(), configService.getOrThrow<string>('TOOL_LOCATION'));
     this.toolExecutable = path.join(process.cwd(), configService.getOrThrow<string>('TOOL_LOCATION'), configService.getOrThrow<string>('TOOL_EXECUTABLE'));
@@ -56,9 +56,8 @@ export default class SonarqubeToolService extends AbstractToolService implements
       }
 
       const issues = await this.sonarqubeService.getIssues(key);
-      const mappedIssues = this.formatService.format(issues);
 
-      return mappedIssues;
+      return await new SonarqubeConverter(codeFilePath.toString()).convert(issues);
     } catch (e) {
       return e;
     }

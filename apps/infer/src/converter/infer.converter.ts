@@ -1,15 +1,15 @@
-import { Log as Sarif, ReportingDescriptor, Result, Run } from 'sarif';
-import { InferReport } from '../types/types';
-import Converter from 'wrappers/common/converter/converter';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { Log, ReportingDescriptor, Result, Run } from 'sarif';
+import Converter from 'wrappers/common/converter/converter';
+import { InferReport } from '../types/types';
 
 export default class InferConverter extends Converter<InferReport> {
   constructor(analysisFile: string, resultFolder: string) {
     super(analysisFile, resultFolder);
   }
 
-  protected async conversion(input: InferReport): Promise<Sarif> {
+  protected async conversion(input: InferReport): Promise<Log> {
     const run: Run = {
       tool: {
         driver: {
@@ -62,7 +62,7 @@ export default class InferConverter extends Converter<InferReport> {
   }
 
   protected async loadReport(): Promise<InferReport> {
-    const fileContent = await fs.readFile(path.join(this.resultsFolder, 'report.json'), { encoding: 'utf-8' });
+    const fileContent = await fs.readFile(path.join(this.reportLoadFolder, 'report.json'), { encoding: 'utf-8' });
 
     return JSON.parse(fileContent) as InferReport;
   }

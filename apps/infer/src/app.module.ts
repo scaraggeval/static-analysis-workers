@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ToolController } from './controller/tool.controller';
 import { ConfigModule } from '@nestjs/config';
-import { InferToolService } from './service/infer.tool.service';
-import ExecutorService from 'wrappers/common/service/executor.service';
 import * as process from 'process';
+import ExecutorService from 'wrappers/common/service/executor.service';
+import { ToolController } from './controller/tool.controller';
+import { InferToolService } from './service/infer.tool.service';
 
 @Module({
   imports: [

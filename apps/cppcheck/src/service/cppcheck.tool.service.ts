@@ -1,11 +1,11 @@
-import * as path from 'path';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as path from 'path';
+import { Log } from 'sarif';
 import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
 import CppcheckConverter from '../converter/cppcheck.converter';
-import { Log } from 'sarif';
 
 @Injectable()
 export class CppcheckToolService extends AbstractToolService implements OnModuleInit {
@@ -40,7 +40,8 @@ export class CppcheckToolService extends AbstractToolService implements OnModule
     try {
       await this.executorService.executeCommand('cppcheck', '--help');
     } catch (e) {
-      this.logger.error('Tool is not available');
+      this.logger.error('Tool is not available. Please install the tool!');
+
       throw Error(e);
     }
   }

@@ -1,16 +1,9 @@
 import { Log } from 'sarif';
 
 export default abstract class Converter<T> {
-  protected analysisFile: string;
-
-  protected resultsFolder: string;
-
   protected output: Log;
 
-  protected constructor(analysisFile: string, resultsFolder: string) {
-    this.analysisFile = analysisFile;
-    this.resultsFolder = resultsFolder;
-
+  protected constructor(protected analysisFile?: string, protected reportLoadFolder?: string) {
     this.output = {
       $schema: 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.4.json',
       version: '2.1.0',
@@ -18,8 +11,14 @@ export default abstract class Converter<T> {
     };
   }
 
-  public async convert(): Promise<Log> {
-    const input = await this.loadReport();
+  public async convert(input?: T): Promise<Log> {
+    if (!input) {
+      if (!this.reportLoadFolder) {
+        throw new Error('Nothing to load from as report folder has not been set!');
+      }
+
+      input = await this.loadReport();
+    }
 
     return this.conversion(input);
   }

@@ -1,5 +1,5 @@
-import { Language } from 'wrappers/common/types/types';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Language } from 'wrappers/common/types/types';
 
 export const retrieveCompilerCommandData = (language: Language, compilationTargetDirectory: string) => {
   switch (language) {
@@ -12,6 +12,6 @@ export const retrieveCompilerCommandData = (language: Language, compilationTarge
 
       return `javac ${targetDirectory}`;
     default:
-      throw new HttpException({}, HttpStatus.BAD_REQUEST)
+      throw new HttpException({}, HttpStatus.BAD_REQUEST);
   }
 };

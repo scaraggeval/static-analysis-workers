@@ -65,13 +65,13 @@ export default class CppcheckConverter extends Converter<PlistReport> {
   }
 
   protected async loadReport(): Promise<PlistReport> {
-    const resultFiles = await FilesystemUtil.findFileWithExtensionInDirectory(this.resultsFolder, 'plist');
+    const resultFiles = await FilesystemUtil.findFileWithExtensionInDirectory(this.reportLoadFolder, 'plist');
 
     if (resultFiles.length !== 1) {
       throw new Error('No result file generated.');
     }
 
-    const fileContent = await fs.readFile(path.join(this.resultsFolder, resultFiles[0].toString()), { encoding: 'utf-8' });
+    const fileContent = await fs.readFile(path.join(this.reportLoadFolder, resultFiles[0].toString()), { encoding: 'utf-8' });
     const plistInput = plist.parse(fileContent);
 
     return Promise.resolve(plistInput as PlistReport);

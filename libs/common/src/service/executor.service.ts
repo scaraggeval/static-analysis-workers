@@ -44,7 +44,7 @@ export default class ExecutorService {
     }
   }
 
-  private parseHrtimeToSeconds(hrtime) {
+  private parseHrtimeToSeconds(hrtime: [number, number]) {
     return (hrtime[0] + hrtime[1] / 1e9).toFixed(3);
   }
 }
