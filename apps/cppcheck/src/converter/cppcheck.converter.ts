@@ -2,11 +2,11 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as plist from 'plist';
 import { Log, ReportingDescriptor, Result, Run } from 'sarif';
-import Converter from 'wrappers/common/converter/converter';
+import SarifConverter from 'wrappers/common/converter/sarif.converter';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import { Location, PlistReport } from '../types/types';
 
-export default class CppcheckConverter extends Converter<PlistReport> {
+export default class CppcheckConverter extends SarifConverter<PlistReport> {
   constructor(analysisFile: string, resultFolder: string) {
     super(analysisFile, resultFolder);
   }

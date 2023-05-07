@@ -19,6 +19,7 @@ export default class SonarqubeService {
       SONAR_URLS.project.create,
       {},
       {
+        baseURL: this.configService.getOrThrow<string>('SONAR_HOST_URL'),
         headers: {
           Cookie: this.loginHolder.loginToken,
           'X-XSRF-TOKEN': this.loginHolder.getXSRFToken,
@@ -43,6 +44,7 @@ export default class SonarqubeService {
       SONAR_URLS.project.delete,
       {},
       {
+        baseURL: this.configService.getOrThrow<string>('SONAR_HOST_URL'),
         headers: {
           Cookie: this.loginHolder.loginToken,
           'X-XSRF-TOKEN': this.loginHolder.getXSRFToken,

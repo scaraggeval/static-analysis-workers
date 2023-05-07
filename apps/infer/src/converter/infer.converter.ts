@@ -1,10 +1,10 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Log, ReportingDescriptor, Result, Run } from 'sarif';
-import Converter from 'wrappers/common/converter/converter';
+import SarifConverter from 'wrappers/common/converter/sarif.converter';
 import { InferReport } from '../types/types';
 
-export default class InferConverter extends Converter<InferReport> {
+export default class InferConverter extends SarifConverter<InferReport> {
   constructor(analysisFile: string, resultFolder: string) {
     super(analysisFile, resultFolder);
   }

@@ -37,30 +37,30 @@ export default class SonarqubeToolService extends AbstractToolService implements
 
     const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
 
-    try {
-      const commandArguments = ` \
+    const commandArguments = ` \
     -Dsonar.projectKey=${key} \
     -Dsonar.sources=${codeFilePath} \
-    -Dsonar.working.directory=${analysisFolder} \
     -Dsonar.projectBaseDir=${analysisFolder} \
     -Dsonar.host.url=${this.configService.getOrThrow<string>('SONAR_HOST_URL')} \
     -Dsonar.login=${this.configService.getOrThrow<string>('SONAR_USERNAME')} \
     -Dsonar.password=${this.configService.getOrThrow<string>('SONAR_PASSWORD')}`;
 
-      await this.executorService.executeExecutable(`${this.toolExecutable}`, undefined, commandArguments);
+    await this.executorService.executeExecutable(`${this.toolExecutable}`, undefined, commandArguments);
 
-      let activityResult = await this.sonarqubeService.getActivity(key);
-      while (activityResult.pending != 0 || activityResult.inProgress != 0) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        activityResult = await this.sonarqubeService.getActivity(key);
-      }
-
-      const issues = await this.sonarqubeService.getIssues(key);
-
-      return await new SonarqubeConverter(codeFilePath.toString()).convert(issues);
-    } catch (e) {
-      return e;
+    let activityResult = await this.sonarqubeService.getActivity(key);
+    while (activityResult.pending != 0 || activityResult.inProgress != 0) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      activityResult = await this.sonarqubeService.getActivity(key);
     }
+
+    const issues = await this.sonarqubeService.getIssues(key);
+
+    // This seems weird, but remember that env variables are always strings.
+    if (this.configService.get<string>('DELETE_AFTER_SCAN') === 'true') {
+      await this.sonarqubeService.deleteProject(key);
+    }
+
+    return await new SonarqubeConverter(codeFilePath.toString()).convert(issues);
   }
 
   async onModuleInit(): Promise<void> {
