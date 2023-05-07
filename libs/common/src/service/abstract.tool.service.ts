@@ -15,7 +15,7 @@ export default abstract class AbstractToolService {
 
   protected abstract requiresAnalysisFolder(): boolean;
 
-  protected async retrieveAnalysisFolder(): Promise<PathLike | undefined> {
+  private async retrieveAnalysisFolder(): Promise<PathLike | undefined> {
     if (!this.requiresAnalysisFolder()) {
       return undefined;
     }
