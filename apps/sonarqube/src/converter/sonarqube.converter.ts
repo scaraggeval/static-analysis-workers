@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Location, Log, Result, Run } from 'sarif';
-import Converter from 'wrappers/common/converter/converter';
+import SarifConverter from 'wrappers/common/converter/sarif.converter';
 import { TYPE_LEVEL_MAP } from '../constants/sonar';
 import { Issue } from '../types/types';
 
-@Injectable()
-export default class SonarqubeConverter extends Converter<Issue[]> {
+export default class SonarqubeConverter extends SarifConverter<Issue[]> {
   constructor(analysisFile: string) {
     super(analysisFile);
   }
@@ -22,7 +21,7 @@ export default class SonarqubeConverter extends Converter<Issue[]> {
       results: [],
     };
 
-    run.results.push(...input.map(this.getRunResult));
+    run.results.push(...input.map(this.getRunResult, this));
     this.output.runs.push(run);
 
     return this.output;

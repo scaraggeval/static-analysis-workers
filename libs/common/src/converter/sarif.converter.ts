@@ -1,6 +1,6 @@
 import { Log } from 'sarif';
 
-export default abstract class Converter<T> {
+export default abstract class SarifConverter<T> {
   protected output: Log;
 
   protected constructor(protected analysisFile?: string, protected reportLoadFolder?: string) {
