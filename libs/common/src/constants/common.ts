@@ -5,4 +5,5 @@ export const LANGUAGE_EXTENSION_MAP: Record<Language, string> = {
   javascript: 'js',
   c: 'c',
   cpp: 'cpp',
+  py: 'py',
 };
