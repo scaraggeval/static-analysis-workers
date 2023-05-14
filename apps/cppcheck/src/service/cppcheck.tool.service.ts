@@ -1,33 +1,45 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as path from 'path';
 import { Log } from 'sarif';
-import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
-import CppcheckConverter from '../converter/cppcheck.converter';
+import { ToolService } from 'wrappers/common/interface/tool.service.interface';
+import { PlistReport } from '../types/types';
+import SarifConverterService from 'wrappers/common/service/sarif.converter.service';
+import { LanguageExtension } from 'wrappers/common/types/types';
+import { ToolCommand } from 'wrappers/common/command/tool.command';
 
 @Injectable()
-export class CppcheckToolService extends AbstractToolService implements OnModuleInit {
-  protected readonly logger = new Logger(CppcheckToolService.name);
+export class CppcheckToolService implements ToolService, OnModuleInit {
+  private readonly logger = new Logger(CppcheckToolService.name);
 
-  constructor(private executorService: ExecutorService, configService: ConfigService) {
-    super(path.join(process.cwd(), configService.get<string>('CODE_LOCATION')));
+  private readonly codeLocation: string;
+
+  private readonly supportedLanguageExtensions: LanguageExtension[];
+
+  constructor(private readonly executorService: ExecutorService, private readonly sarifConverter: SarifConverterService<PlistReport>, readonly configService: ConfigService) {
+    this.codeLocation = configService.get<string>('CODE_LOCATION');
+
+    this.supportedLanguageExtensions = ['c', 'cpp'];
   }
 
-  protected requiresAnalysisFolder(): boolean {
-    return true;
+  getSupportedLanguageExtensions(): LanguageExtension[] {
+    return this.supportedLanguageExtensions;
   }
 
-  async analyseCode(command, analysisFolder): Promise<Log> {
+  getAnalysisFolderBase(): string {
+    return this.codeLocation;
+  }
+
+  async invokeToolAnalysis(command: ToolCommand, analysisFolder: string): Promise<Log> {
     this.logger.verbose('Executing cppcheck.');
 
-    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
+    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.languageExtension, analysisFolder, command.encoded);
 
     const commandArguments = `--plist-output=${analysisFolder} ${codeFilePath}`;
     await this.executorService.executeCommand('cppcheck', commandArguments);
 
-    return await new CppcheckConverter(codeFilePath.toString(), analysisFolder).convert();
+    return this.sarifConverter.convertFromReportFolder(analysisFolder, codeFilePath.toString());
   }
 
   async onModuleInit(): Promise<any> {

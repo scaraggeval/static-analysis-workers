@@ -1,15 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { Location, Log, Result, Run } from 'sarif';
-import SarifConverter from 'wrappers/common/converter/sarif.converter';
+import { Location, Result, Run } from 'sarif';
 import { TYPE_LEVEL_MAP } from '../constants/sonar';
 import { Issue } from '../types/types';
+import { ToolRunConverter } from 'wrappers/common/interface/tool.run.converter.interface';
 
-export default class SonarqubeConverter extends SarifConverter<Issue[]> {
-  constructor(analysisFile: string) {
-    super(analysisFile);
+export default class SonarqubeConverter implements ToolRunConverter<Issue[]> {
+  loadToolReport(reportFolder: string): Promise<Issue[]> {
+    throw new Error('Method not implemented.');
   }
 
-  protected async conversion(input: Issue[]): Promise<Log> {
+  convertToolRun(input: Issue[], originatingFileName: string): Run {
     const run: Run = {
       tool: {
         driver: {
@@ -21,22 +20,21 @@ export default class SonarqubeConverter extends SarifConverter<Issue[]> {
       results: [],
     };
 
-    run.results.push(...input.map(this.getRunResult, this));
-    this.output.runs.push(run);
+    run.results.push(...input.map((value) => this.getRunResult(value, originatingFileName), this));
 
-    return this.output;
+    return run;
   }
 
   protected loadReport(): Promise<Issue[]> {
     throw new Error('Method not implemented.');
   }
 
-  private getRunResult(issue: Issue): Result {
+  private getRunResult(issue: Issue, originatingFileName: string): Result {
     const location: Location | undefined = issue.textRange
       ? {
           physicalLocation: {
             artifactLocation: {
-              uri: this.analysisFile,
+              uri: originatingFileName,
             },
             region: {
               startLine: issue.textRange.startLine,

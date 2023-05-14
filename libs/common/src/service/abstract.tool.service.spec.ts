@@ -27,8 +27,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn().mockResolvedValue({} as Log);
       public requiresAnalysisFolder = jest.fn().mockReturnValue(true);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     const result = await testToolService.analyze(toolCommand);
 
@@ -46,8 +47,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn().mockResolvedValue({} as Log);
       public requiresAnalysisFolder = jest.fn().mockReturnValue(true);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     await testToolService.analyze(toolCommand);
 
@@ -65,8 +67,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn().mockResolvedValue({} as Log);
       public requiresAnalysisFolder = jest.fn().mockReturnValue(false);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     await testToolService.analyze(toolCommand);
 
@@ -84,8 +87,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn().mockRejectedValue(new Error('error!'));
       public requiresAnalysisFolder = jest.fn().mockReturnValue(false);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     await expect(() => testToolService.analyze(toolCommand)).rejects.toThrow(HttpException);
   });
@@ -101,8 +105,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn();
       public requiresAnalysisFolder = jest.fn().mockReturnValue(true);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     await testToolService.analyze(toolCommand);
 
@@ -120,8 +125,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn();
       public requiresAnalysisFolder = jest.fn().mockReturnValue(false);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     await testToolService.analyze(toolCommand);
 
@@ -139,8 +145,9 @@ describe('AbstractToolService', () => {
       public analyseCode = jest.fn().mockRejectedValue(new Error('error!'));
       public requiresAnalysisFolder = jest.fn().mockReturnValue(true);
     }
+
     const testToolService = new TestToolService('code');
-    const toolCommand: ToolCommand = { code: '', encoded: true, language: 'c' };
+    const toolCommand: ToolCommand = { code: '', encoded: true, languageExtension: 'c' };
 
     try {
       await testToolService.analyze(toolCommand);

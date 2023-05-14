@@ -1,17 +1,28 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as plist from 'plist';
-import { Log, ReportingDescriptor, Result, Run } from 'sarif';
-import SarifConverter from 'wrappers/common/converter/sarif.converter';
+import { ReportingDescriptor, Result, Run } from 'sarif';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import { Location, PlistReport } from '../types/types';
+import { Injectable } from '@nestjs/common';
+import { ToolRunConverter } from 'wrappers/common/interface/tool.run.converter.interface';
 
-export default class CppcheckConverter extends SarifConverter<PlistReport> {
-  constructor(analysisFile: string, resultFolder: string) {
-    super(analysisFile, resultFolder);
+@Injectable()
+export default class CppcheckToolRunConverter implements ToolRunConverter<PlistReport> {
+  async loadToolReport(reportFolder: string): Promise<PlistReport> {
+    const resultFiles = await FilesystemUtil.findFileWithExtensionInDirectory(reportFolder, 'plist');
+
+    if (resultFiles.length !== 1) {
+      throw new Error('No result file generated.');
+    }
+
+    const fileContent = await fs.readFile(path.join(reportFolder, resultFiles[0].toString()), { encoding: 'utf-8' });
+    const plistInput = plist.parse(fileContent);
+
+    return Promise.resolve(plistInput as PlistReport);
   }
 
-  public async conversion(input: PlistReport): Promise<Log> {
+  convertToolRun(input: PlistReport, originatingFileName: string): Run {
     const run: Run = {
       tool: {
         driver: {
@@ -42,7 +53,7 @@ export default class CppcheckConverter extends SarifConverter<PlistReport> {
           {
             physicalLocation: {
               artifactLocation: {
-                uri: this.analysisFile,
+                uri: originatingFileName,
               },
               region: this.genRegion(diagnostic.location),
             },
@@ -52,9 +63,7 @@ export default class CppcheckConverter extends SarifConverter<PlistReport> {
       run.results.push(res);
     });
 
-    this.output.runs.push(run);
-
-    return this.output;
+    return run;
   }
 
   private genRegion(location: Location): any {
@@ -62,18 +71,5 @@ export default class CppcheckConverter extends SarifConverter<PlistReport> {
       startLine: location.line,
       startColumn: location.col,
     };
-  }
-
-  protected async loadReport(): Promise<PlistReport> {
-    const resultFiles = await FilesystemUtil.findFileWithExtensionInDirectory(this.reportLoadFolder, 'plist');
-
-    if (resultFiles.length !== 1) {
-      throw new Error('No result file generated.');
-    }
-
-    const fileContent = await fs.readFile(path.join(this.reportLoadFolder, resultFiles[0].toString()), { encoding: 'utf-8' });
-    const plistInput = plist.parse(fileContent);
-
-    return Promise.resolve(plistInput as PlistReport);
   }
 }

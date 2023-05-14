@@ -1,12 +1,12 @@
 import { IsNotEmpty } from 'class-validator';
-import { Language } from 'wrappers/common/types/types';
+import { LanguageExtension } from 'wrappers/common/types/types';
 
 export class ToolCommand {
   @IsNotEmpty()
   code: string;
 
   @IsNotEmpty()
-  language: Language;
+  languageExtension: LanguageExtension;
 
   @IsNotEmpty()
   encoded: boolean;

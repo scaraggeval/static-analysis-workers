@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Language } from 'wrappers/common/types/types';
+import { LanguageExtension } from 'wrappers/common/types/types';
 
-export const retrieveCompilerCommandData = (language: Language, compilationTargetDirectory: string) => {
+export const retrieveCompilerCommandData = (language: LanguageExtension, compilationTargetDirectory: string) => {
   switch (language) {
     case 'c':
       return 'gcc -fsyntax-only';
