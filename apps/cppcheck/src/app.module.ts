@@ -6,8 +6,8 @@ import CppcheckToolRunConverter from './converter/cppcheck.tool.run.converter';
 @Module({
   imports: [
     CommonModule.register({
-      toolServiceProviderInfo: CppcheckToolService,
-      toolRunConverterProviderInfo: CppcheckToolRunConverter,
+      toolServiceProvider: CppcheckToolService,
+      toolRunConverterProvider: CppcheckToolRunConverter,
       envFilePath: './apps/cppcheck/.env',
     }),
   ],

@@ -5,7 +5,7 @@ import { EslintToolService } from './service/eslint.tool.service';
 @Module({
   imports: [
     CommonModule.register({
-      toolServiceProviderInfo: EslintToolService,
+      toolServiceProvider: EslintToolService,
       envFilePath: './apps/eslint/.env',
     }),
   ],
