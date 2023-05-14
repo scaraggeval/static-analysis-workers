@@ -2,34 +2,44 @@ import * as path from 'path';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
 import { Log } from 'sarif';
+import { ToolService } from 'wrappers/common/interface/tool.service.interface';
+import { LanguageExtension } from 'wrappers/common/types/types';
 
 @Injectable()
-export class CheckstyleToolService extends AbstractToolService implements OnModuleInit {
+export class CheckstyleToolService implements ToolService, OnModuleInit {
   protected readonly logger = new Logger(CheckstyleToolService.name);
 
+  private readonly codeLocation: string;
   private readonly toolPath: string;
   private readonly toolExecutable: string;
 
+  private readonly supportedLanguageExtensions: LanguageExtension[];
+
   constructor(private configService: ConfigService, private executorService: ExecutorService) {
-    super(path.join(process.cwd(), configService.get<string>('CODE_LOCATION')));
+    this.codeLocation = configService.get<string>('CODE_LOCATION');
     this.toolPath = path.join(process.cwd(), configService.get<string>('TOOL_LOCATION'));
     this.toolExecutable = path.join(process.cwd(), configService.getOrThrow<string>('TOOL_LOCATION'), configService.getOrThrow<string>('TOOL_EXECUTABLE'));
+
+    this.supportedLanguageExtensions = ['java'];
   }
 
-  protected requiresAnalysisFolder(): boolean {
-    return true;
+  getSupportedLanguageExtensions(): LanguageExtension[] {
+    return this.supportedLanguageExtensions;
   }
 
-  async analyseCode(command: ToolCommand, analysisFolder): Promise<Log> {
+  getAnalysisFolderBase(): string {
+    return this.codeLocation;
+  }
+
+  async invokeToolAnalysis(command: ToolCommand, analysisFolder: string): Promise<Log> {
     this.logger.verbose('Executing Checkstyle.');
 
-    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
+    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.languageExtension, analysisFolder, command.encoded);
 
     const commandArguments = `-jar ${this.toolExecutable} -c /sun_checks.xml -f sarif ${codeFilePath}`;
     const result = await this.executorService.executeCommand(`java`, commandArguments, true);
@@ -39,26 +49,35 @@ export class CheckstyleToolService extends AbstractToolService implements OnModu
 
   async onModuleInit(): Promise<any> {
     this.logger.log('Initializing tool.');
+    await this.checkPrerequisite();
     await this.prepareTool();
     this.logger.log('Tool initialization finished.');
   }
 
-  async downloadTool() {
-    this.logger.log('Downloading tool.');
-    const jarResponse = await axios({
-      method: 'GET',
-      url: this.configService.get<string>('TOOL_LINK'),
-      responseType: 'arraybuffer',
-    });
-    this.logger.log('Tool downloaded.');
+  async checkPrerequisite() {
+    try {
+      await this.executorService.executeCommand('java', '--version');
+    } catch (e) {
+      this.logger.error('Java is not available. Please install jre!');
 
-    await FilesystemUtil.createFile(this.toolExecutable, jarResponse.data);
+      throw Error(e);
+    }
   }
 
   async prepareTool() {
     if (!(await FilesystemUtil.checkFileOrFolder(this.toolExecutable))) {
       await FilesystemUtil.createFolder(this.toolPath);
-      await this.downloadTool();
+
+      this.logger.log('Downloading tool.');
+
+      const jarResponse = await axios({
+        method: 'GET',
+        url: this.configService.get<string>('TOOL_LINK'),
+        responseType: 'arraybuffer',
+      });
+      this.logger.log('Tool downloaded.');
+
+      await FilesystemUtil.createFile(this.toolExecutable, jarResponse.data);
     }
   }
 }

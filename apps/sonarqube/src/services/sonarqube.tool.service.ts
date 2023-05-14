@@ -6,36 +6,52 @@ import { randomUUID } from 'crypto';
 import * as path from 'path';
 import { Log } from 'sarif';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
-import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import ExecutorService from 'wrappers/common/service/executor.service';
 import CodeUtil from 'wrappers/common/util/code.util';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
-import SonarqubeConverter from '../converter/sonarqube.converter';
 import SonarqubeService from './sonarqube.service';
+import { ToolService } from 'wrappers/common/interface/tool.service.interface';
+import SarifConverterService from 'wrappers/common/service/sarif.converter.service';
+import { Issue } from '../types/types';
+import { LanguageExtension } from 'wrappers/common/types/types';
 
 @Injectable()
-export default class SonarqubeToolService extends AbstractToolService implements OnModuleInit {
-  protected readonly logger = new Logger(SonarqubeToolService.name);
+export default class SonarqubeToolService implements ToolService, OnModuleInit {
+  private readonly logger = new Logger(SonarqubeToolService.name);
 
+  private readonly codeLocation: string;
   private readonly toolPath: string;
   private readonly toolExecutable: string;
 
-  constructor(private configService: ConfigService, private executorService: ExecutorService, private sonarqubeService: SonarqubeService, private formatService: SonarqubeConverter) {
-    super(path.join(process.cwd(), configService.getOrThrow<string>('CODE_LOCATION')));
+  private readonly supportedLanguageExtensions: LanguageExtension[];
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly executorService: ExecutorService,
+    private readonly sonarqubeService: SonarqubeService,
+    private readonly sarifConverterService: SarifConverterService<Issue[]>,
+  ) {
+    this.codeLocation = configService.get<string>('CODE_LOCATION');
     this.toolPath = path.join(process.cwd(), configService.getOrThrow<string>('TOOL_LOCATION'));
     this.toolExecutable = path.join(process.cwd(), configService.getOrThrow<string>('TOOL_LOCATION'), configService.getOrThrow<string>('TOOL_EXECUTABLE'));
+
+    this.supportedLanguageExtensions = ['java', 'py', 'js'];
   }
 
-  protected requiresAnalysisFolder(): boolean {
-    return true;
+  getSupportedLanguageExtensions(): LanguageExtension[] {
+    return this.supportedLanguageExtensions;
   }
 
-  async analyseCode(command: ToolCommand, analysisFolder): Promise<Log> {
+  getAnalysisFolderBase(): string {
+    return this.codeLocation;
+  }
+
+  async invokeToolAnalysis(command: ToolCommand, analysisFolder): Promise<Log> {
     this.logger.log('Executing SonarQube scanner.');
 
     const key = randomUUID();
 
-    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.language, analysisFolder, command.encoded);
+    const codeFilePath = await CodeUtil.prepareCodeLocation(command.code, command.languageExtension, analysisFolder, command.encoded);
 
     const commandArguments = ` \
     -Dsonar.projectKey=${key} \
@@ -60,7 +76,7 @@ export default class SonarqubeToolService extends AbstractToolService implements
       await this.sonarqubeService.deleteProject(key);
     }
 
-    return await new SonarqubeConverter(codeFilePath.toString()).convert(issues);
+    return this.sarifConverterService.convertFromInput(issues, codeFilePath.toString());
   }
 
   async onModuleInit(): Promise<void> {

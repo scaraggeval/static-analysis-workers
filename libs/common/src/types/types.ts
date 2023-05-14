@@ -1,1 +1,1 @@
-export type Language = 'javascript' | 'java' | 'c' | 'cpp' | 'py';
+export type LanguageExtension = 'js' | 'java' | 'c' | 'cpp' | 'py';

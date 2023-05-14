@@ -1,45 +1,54 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ESLint } from 'eslint';
-import AbstractToolService from 'wrappers/common/service/abstract.tool.service';
 import { ToolCommand } from 'wrappers/common/command/tool.command';
 import CodeUtil from 'wrappers/common/util/code.util';
 import { Log } from 'sarif';
+import { ToolService } from 'wrappers/common/interface/tool.service.interface';
+import { LanguageExtension } from 'wrappers/common/types/types';
 
 @Injectable()
-export class EslintToolService extends AbstractToolService {
-  protected readonly logger = new Logger(EslintToolService.name);
+export class EslintToolService implements ToolService, OnModuleInit {
+  private readonly logger = new Logger(EslintToolService.name);
+  private formatter: ESLint.Formatter;
 
   private readonly eslint: ESLint;
 
+  private readonly supportedLanguageExtensions: LanguageExtension[];
+
   constructor() {
-    super();
     this.eslint = new ESLint({
       useEslintrc: false,
       baseConfig: {
         extends: ['eslint:recommended'],
         env: {
+          browser: true,
           es6: true,
         },
       },
     });
+
+    this.supportedLanguageExtensions = ['js'];
   }
 
-  protected requiresAnalysisFolder(): boolean {
-    return false;
+  async onModuleInit(): Promise<void> {
+    this.formatter = await this.eslint.loadFormatter('@microsoft/sarif');
   }
 
-  async analyseCode(command: ToolCommand): Promise<Log> {
+  getSupportedLanguageExtensions(): LanguageExtension[] {
+    return this.supportedLanguageExtensions;
+  }
+
+  getAnalysisFolderBase(): string | undefined {
+    return undefined;
+  }
+
+  async invokeToolAnalysis(command: ToolCommand): Promise<Log> {
+    this.logger.verbose('Executing EsLint');
+
     const decodedCode = CodeUtil.optionalDecode(command.code, command.encoded);
 
     const eslintResults = await this.eslint.lintText(decodedCode);
 
-    return await this.formatResult(eslintResults);
-  }
-
-  async formatResult(results: ESLint.LintResult[]): Promise<Log> {
-    const formatString = '@microsoft/sarif';
-    const formatter = await this.eslint.loadFormatter(formatString);
-
-    return JSON.parse(await formatter.format(results));
+    return JSON.parse(await this.formatter.format(eslintResults));
   }
 }

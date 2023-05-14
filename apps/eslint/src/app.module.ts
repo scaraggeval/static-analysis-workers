@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ToolController } from './controller/tool.controller';
+import { CommonModule } from 'wrappers/common/common.module';
 import { EslintToolService } from './service/eslint.tool.service';
 
 @Module({
-  controllers: [ToolController],
-  providers: [EslintToolService],
+  imports: [
+    CommonModule.register({
+      toolServiceProviderInfo: EslintToolService,
+      envFilePath: './apps/eslint/.env',
+    }),
+  ],
 })
 export class AppModule {}

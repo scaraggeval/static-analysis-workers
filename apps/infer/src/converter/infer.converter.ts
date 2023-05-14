@@ -1,15 +1,11 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { Log, ReportingDescriptor, Result, Run } from 'sarif';
-import SarifConverter from 'wrappers/common/converter/sarif.converter';
+import { ReportingDescriptor, Result, Run } from 'sarif';
 import { InferReport } from '../types/types';
+import { ToolRunConverter } from 'wrappers/common/interface/tool.run.converter.interface';
 
-export default class InferConverter extends SarifConverter<InferReport> {
-  constructor(analysisFile: string, resultFolder: string) {
-    super(analysisFile, resultFolder);
-  }
-
-  protected async conversion(input: InferReport): Promise<Log> {
+export default class InferConverter implements ToolRunConverter<InferReport> {
+  convertToolRun(input: InferReport, originatingFileName: string): Run {
     const run: Run = {
       tool: {
         driver: {
@@ -19,8 +15,6 @@ export default class InferConverter extends SarifConverter<InferReport> {
       },
       results: [],
     };
-
-    this.output.runs.push(run);
 
     input.forEach((jsonBug) => {
       // create the Rule object if it doesn't already exist
@@ -44,7 +38,7 @@ export default class InferConverter extends SarifConverter<InferReport> {
           {
             physicalLocation: {
               artifactLocation: {
-                uri: this.analysisFile,
+                uri: originatingFileName,
               },
               region: {
                 startLine: jsonBug.line,
@@ -58,11 +52,11 @@ export default class InferConverter extends SarifConverter<InferReport> {
       run.results.push(result);
     });
 
-    return this.output;
+    return run;
   }
 
-  protected async loadReport(): Promise<InferReport> {
-    const fileContent = await fs.readFile(path.join(this.reportLoadFolder, 'report.json'), { encoding: 'utf-8' });
+  async loadToolReport(reportFolder: string): Promise<InferReport> {
+    const fileContent = await fs.readFile(path.join(reportFolder, 'report.json'), { encoding: 'utf-8' });
 
     return JSON.parse(fileContent) as InferReport;
   }
