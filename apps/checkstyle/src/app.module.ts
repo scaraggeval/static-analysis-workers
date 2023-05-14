@@ -5,7 +5,7 @@ import { CommonModule } from 'wrappers/common/common.module';
 @Module({
   imports: [
     CommonModule.register({
-      toolServiceProviderInfo: CheckstyleToolService,
+      toolServiceProvider: CheckstyleToolService,
       envFilePath: './apps/checkstyle/.env',
     }),
   ],

@@ -4,13 +4,13 @@ import { ToolController } from 'wrappers/common/controller/tool.controller';
 import AnalysisService from 'wrappers/common/service/analysis.service';
 import { ToolService } from 'wrappers/common/interface/tool.service.interface';
 import { ConfigModule } from '@nestjs/config';
-import MockToolRunConverter from 'wrappers/common/converter/mock.tool.run.converter';
+import MockToolRunConverter from 'wrappers/common/mock/mock.tool.run.converter';
 import { ToolRunConverter } from 'wrappers/common/interface/tool.run.converter.interface';
 import SarifConverterService from 'wrappers/common/service/sarif.converter.service';
 
 type CommonModuleOptions = {
-  toolServiceProviderInfo: Type;
-  toolRunConverterProviderInfo?: Type;
+  toolServiceProvider: Type;
+  toolRunConverterProvider?: Type;
   additionalProviders?: Provider[];
   envFilePath?: string;
 };
@@ -31,11 +31,11 @@ export class CommonModule {
         ...(options.additionalProviders || []),
         {
           provide: ToolService,
-          useClass: options.toolServiceProviderInfo,
+          useClass: options.toolServiceProvider,
         },
         {
           provide: ToolRunConverter,
-          useClass: options.toolRunConverterProviderInfo ?? MockToolRunConverter,
+          useClass: options.toolRunConverterProvider ?? MockToolRunConverter,
         },
         AnalysisService,
         SarifConverterService,

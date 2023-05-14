@@ -6,6 +6,7 @@ import { Log } from 'sarif';
 import FilesystemUtil from 'wrappers/common/util/filesystem.util';
 import { ToolCommand } from '../command/tool.command';
 import { ToolService } from 'wrappers/common/interface/tool.service.interface';
+import { cwd } from 'process';
 
 @Injectable()
 export default class AnalysisService {
@@ -20,7 +21,7 @@ export default class AnalysisService {
       return undefined;
     }
 
-    const analysisFolderPath = path.join(process.cwd(), analysisFolderPathBase, randomUUID());
+    const analysisFolderPath = path.join(cwd(), analysisFolderPathBase, randomUUID());
     await FilesystemUtil.createFolder(analysisFolderPath);
 
     return analysisFolderPath;

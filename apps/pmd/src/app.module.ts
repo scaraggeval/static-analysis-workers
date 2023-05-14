@@ -5,7 +5,7 @@ import { PmdToolService } from './service/pmd.tool.service';
 @Module({
   imports: [
     CommonModule.register({
-      toolServiceProviderInfo: PmdToolService,
+      toolServiceProvider: PmdToolService,
       envFilePath: './apps/pmd/.env',
     }),
   ],

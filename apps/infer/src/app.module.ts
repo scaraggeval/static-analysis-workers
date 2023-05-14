@@ -6,8 +6,8 @@ import InferConverter from './converter/infer.converter';
 @Module({
   imports: [
     CommonModule.register({
-      toolServiceProviderInfo: InferToolService,
-      toolRunConverterProviderInfo: InferConverter,
+      toolServiceProvider: InferToolService,
+      toolRunConverterProvider: InferConverter,
       envFilePath: './apps/infer/.env',
     }),
   ],

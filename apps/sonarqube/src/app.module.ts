@@ -8,8 +8,8 @@ import { CommonModule } from 'wrappers/common/common.module';
 @Module({
   imports: [
     CommonModule.register({
-      toolServiceProviderInfo: SonarqubeToolService,
-      toolRunConverterProviderInfo: SonarqubeConverter,
+      toolServiceProvider: SonarqubeToolService,
+      toolRunConverterProvider: SonarqubeConverter,
       additionalProviders: [SonarqubeService, LoginHolder],
       envFilePath: './apps/sonarqube/.env',
     }),
