@@ -1,6 +1,6 @@
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common';
 import ExecutorService from 'wrappers/common/service/executor.service';
-import { ToolController } from 'wrappers/common/controller/tool.controller';
+import { AnalysisController } from 'wrappers/common/controller/analysis.controller';
 import AnalysisService from 'wrappers/common/service/analysis.service';
 import { ToolService } from 'wrappers/common/interface/tool.service.interface';
 import { ConfigModule } from '@nestjs/config';
@@ -26,7 +26,7 @@ export class CommonModule {
           expandVariables: options.envFilePath && true,
         }),
       ],
-      controllers: [ToolController],
+      controllers: [AnalysisController],
       providers: [
         ...(options.additionalProviders || []),
         {

@@ -4,7 +4,7 @@ import { ToolCommand } from 'wrappers/common/command/tool.command';
 import AnalysisService from 'wrappers/common/service/analysis.service';
 
 @Controller()
-export class ToolController {
+export class AnalysisController {
   constructor(private readonly analysisService: AnalysisService) {}
 
   @Post()
